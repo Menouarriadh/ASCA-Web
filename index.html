@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASCA – Association pour la Santé de Cerveau Annaba</title>
+  <meta name="description" content="Association pour la Santé de Cerveau Annaba – Neuroscience, Santé Cérébrale & Neuropharmacologie. Ouverte à tous." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --navy:       #080e2a;
+      --navy-mid:   #0d1b4b;
+      --indigo:     #3a1c8a;
+      --purple:     #6b2fbe;
+      --violet:     #9b4fd4;
+      --cyan:       #00c6d7;
+      --cyan-dim:   #00889a;
+      --white:      #f0f4ff;
+      --glass:      rgba(255,255,255,0.05);
+      --glass-border: rgba(0,198,215,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Raleway', sans-serif;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--navy); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 3px; }
+
+    /* ── CANVAS BG ── */
+    #neural-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* ── LAYOUT WRAPPER ── */
+    .site-wrap {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* radial glow replicating logo center light */
+    #hero::before {
+      content: '';
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,198,215,0.18) 0%, rgba(107,47,190,0.14) 45%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: breathe 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes breathe {
+      0%, 100% { transform: translate(-50%, -50%) scale(1);   opacity: 0.8; }
+      50%       { transform: translate(-50%, -50%) scale(1.15); opacity: 1;   }
+    }
+
+    /* logo */
+    .logo-wrap {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      margin-bottom: 2.2rem;
+      position: relative;
+      animation: float 5s ease-in-out infinite;
+      filter: drop-shadow(0 0 28px rgba(0,198,215,0.6)) drop-shadow(0 0 60px rgba(107,47,190,0.45));
+    }
+
+    .logo-wrap img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* orbital ring */
+    .logo-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(0,198,215,0.4);
+      animation: spin 14s linear infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0);    }
+      50%       { transform: translateY(-14px); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hero-tag {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, var(--white) 30%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+
+    .hero-acronym {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(3.5rem, 12vw, 7rem);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    .hero-sub {
+      font-size: 0.95rem;
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      color: rgba(240,244,255,0.65);
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      animation: fadeUp 0.8s 1.2s forwards;
+    }
+
+    .scroll-hint span {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      color: var(--cyan-dim);
+      text-transform: uppercase;
+    }
+
+    .scroll-arrow {
+      width: 20px;
+      height: 20px;
+      border-right: 2px solid var(--cyan);
+      border-bottom: 2px solid var(--cyan);
+      transform: rotate(45deg);
+      animation: bounce 1.6s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: rotate(45deg) translateY(0);   }
+      50%       { transform: rotate(45deg) translateY(6px); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    /* ══════════════════════════════
+       SECTION BASE
+    ══════════════════════════════ */
+    section {
+      padding: 5rem 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 0.6rem;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      font-weight: 700;
+      margin-bottom: 3rem;
+      line-height: 1.2;
+    }
+
+    /* reveal animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ══════════════════════════════
+       ABOUT
+    ══════════════════════════════ */
+    #about {
+      text-align: center;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .about-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      padding: 2.2rem 1.5rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-card::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -40%;
+      width: 180%;
+      height: 180%;
+      background: radial-gradient(circle, rgba(0,198,215,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .about-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 0 40px rgba(0,198,215,0.2);
+      border-color: var(--cyan);
+    }
+
+    .about-icon {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .about-card h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.7rem;
+      color: var(--cyan);
+    }
+
+    .about-card p {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: rgba(240,244,255,0.7);
+      font-weight: 300;
+    }
+
+    /* ══════════════════════════════
+       SOCIAL SECTION
+    ══════════════════════════════ */
+    #social {
+      text-align: center;
+    }
+
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.8rem;
+    }
+
+    .social-card {
+      position: relative;
+      border-radius: 20px;
+      padding: 2.5rem 1.5rem 2rem;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      text-decoration: none;
+      color: var(--white);
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(.25,.8,.25,1), box-shadow 0.35s, border-color 0.35s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* platform glow blobs */
+    .social-card .blob {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0;
+      transition: opacity 0.4s;
+      pointer-events: none;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .social-card:hover .blob { opacity: 0.35; }
+    .social-card:hover {
+      transform: translateY(-10px) scale(1.02);
+    }
+
+    /* TikTok */
+    .card-tiktok .blob     { background: radial-gradient(circle, #69C9D0, #010101); }
+    .card-tiktok:hover     { box-shadow: 0 20px 60px rgba(105,201,208,0.35); border-color: #69C9D0; }
+    .card-tiktok .s-icon   { color: #69C9D0; }
+
+    /* Instagram */
+    .card-instagram .blob  { background: radial-gradient(circle, #f58529, #dd2a7b, #8134af, #515bd4); }
+    .card-instagram:hover  { box-shadow: 0 20px 60px rgba(221,42,123,0.4); border-color: #dd2a7b; }
+    .card-instagram .s-icon { background: linear-gradient(45deg,#f58529,#dd2a7b,#8134af,#515bd4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    /* Facebook */
+    .card-facebook .blob   { background: radial-gradient(circle, #1877f2, #0050b0); }
+    .card-facebook:hover   { box-shadow: 0 20px 60px rgba(24,119,242,0.4); border-color: #1877f2; }
+    .card-facebook .s-icon { color: #1877f2; }
+
+    .s-icon {
+      font-size: 3rem;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s;
+    }
+    .social-card:hover .s-icon { transform: scale(1.15); }
+
+    .s-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.12em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .s-handle {
+      font-size: 0.78rem;
+      color: rgba(240,244,255,0.5);
+      font-weight: 300;
+      position: relative;
+      z-index: 1;
+    }
+
+    .s-btn {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1.4rem;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.2);
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.07);
+      color: var(--white);
+      position: relative;
+      z-index: 1;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .social-card:hover .s-btn {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    /* LinkedIn */
+    .card-linkedin .blob   { background: radial-gradient(circle, #0a66c2, #004182); }
+    .card-linkedin:hover   { box-shadow: 0 20px 60px rgba(10,102,194,0.4); border-color: #0a66c2; }
+    .card-linkedin .s-icon { color: #0a66c2; }
+
+    /* YouTube */
+    .card-youtube .blob    { background: radial-gradient(circle, #ff0000, #8b0000); }
+    .card-youtube:hover    { box-shadow: 0 20px 60px rgba(255,0,0,0.35); border-color: #ff4444; }
+    .card-youtube .s-icon  { color: #ff4444; }
+
+    /* email section */
+    #contact {
+      text-align: center;
+    }
+
+    .contact-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.4rem 2.2rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: box-shadow 0.3s, border-color 0.3s;
+      text-decoration: none;
+      color: var(--white);
+    }
+    .contact-box:hover {
+      box-shadow: 0 0 40px rgba(0,198,215,0.25);
+      border-color: var(--cyan);
+    }
+    .contact-box i {
+      font-size: 1.6rem;
+      color: var(--cyan);
+    }
+    .contact-box span {
+      font-family: 'Raleway', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    /* audience banner */
+    .audience-banner {
+      background: linear-gradient(135deg, rgba(0,198,215,0.08) 0%, rgba(107,47,190,0.1) 100%);
+      border: 1px solid rgba(0,198,215,0.2);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      margin-top: 3rem;
+    }
+    .audience-banner h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1rem, 3vw, 1.4rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--white) 40%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .audience-banner p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+      color: rgba(240,244,255,0.72);
+      font-weight: 300;
+      max-width: 680px;
+      margin: 0 auto 1.5rem;
+    }
+    .audience-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      justify-content: center;
+    }
+    .audience-tags span {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.35rem 1rem;
+      border-radius: 50px;
+      border: 1px solid rgba(0,198,215,0.35);
+      color: var(--cyan);
+      background: rgba(0,198,215,0.07);
+    }
+
+    /* ══════════════════════════════
+       DIVIDER
+    ══════════════════════════════ */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--cyan-dim), transparent);
+      max-width: 800px;
+      margin: 0 auto;
+      opacity: 0.4;
+    }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    footer {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    footer::before {
+      content: '';
+      display: block;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--cyan), transparent);
+      margin-bottom: 2rem;
+      opacity: 0.5;
+    }
+
+    footer p {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      color: rgba(240,244,255,0.35);
+      font-weight: 300;
+    }
+
+    footer span {
+      color: var(--cyan);
+    }
+
+    /* ══════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════ */
+    @media (max-width: 600px) {
+      .logo-wrap { width: 120px; height: 120px; }
+      .social-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="neural-canvas"></canvas>
+
+<div class="site-wrap">
+
+  <!-- ══ HERO ══ -->
+  <section id="hero" aria-label="Accueil ASCA">
+    <p class="hero-tag">Annaba · Algérie</p>
+
+    <div class="logo-wrap">
+      <img src="logo.jpg" alt="Logo ASCA – Association pour la Santé de Cerveau Annaba" onerror="this.style.display='none';this.parentElement.style.background='radial-gradient(circle, #3a1c8a, #080e2a)'" />
+    </div>
+
+    <h1 class="hero-title">Association pour la Santé de Cerveau Annaba</h1>
+    <p class="hero-acronym">ASCA</p>
+    <p class="hero-sub">Neuroscience &nbsp;·&nbsp; Santé Cérébrale &nbsp;·&nbsp; Neuropharmacologie</p>
+
+    <div class="scroll-hint" aria-hidden="true">
+      <span>Découvrir</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══ ABOUT ══ -->
+  <section id="about" aria-label="À propos de l'ASCA">
+    <p class="section-label reveal">Notre Mission</p>
+    <h2 class="section-title reveal">La science au service <br/>du cerveau humain</h2>
+
+    <div class="about-grid">
+      <div class="about-card reveal">
+        <div class="about-icon"><i class="fa-solid fa-brain" aria-hidden="true"></i></div>
+        <h3>Santé Cérébrale</h3>
+        <p>Promouvoir et préserver la santé du cerveau à travers la sensibilisation, l'éducation et la diffusion des bonnes pratiques neurologiques.</p>
+      </div>
+      <div class="about-card reveal">
+        <div class="about-icon"><i class="fa-solid fa-flask-vial" aria-hidden="true"></i></div>
+        <h3>Neuropharmacologie</h3>
+        <p>Exploration des interactions entre médicaments et système nerveux pour améliorer les traitements et la compréhension des pathologies cérébrales.</p>
+      </div>
+      <div class="about-card reveal">
+        <div class="about-icon"><i class="fa-solid fa-network-wired" aria-hidden="true"></i></div>
+        <h3>Neurosciences</h3>
+        <p>Diffusion des dernières avancées scientifiques sur le cerveau et le système nerveux central auprès du grand public et des spécialistes.</p>
+      </div>
+      <div class="about-card reveal">
+        <div class="about-icon"><i class="fa-solid fa-people-group" aria-hidden="true"></i></div>
+        <h3>Communauté Ouverte</h3>
+        <p>Une association ouverte à toute personne souhaitant contribuer à l'amélioration de la santé cérébrale — sans frontières de profession ou d'âge.</p>
+      </div>
+    </div>
+
+    <!-- Audience Banner -->
+    <div class="audience-banner reveal">
+      <h3>🧠 L'ASCA est ouverte à tout le monde</h3>
+      <p>
+        Que vous soyez étudiant, professionnel de santé, chercheur, artiste, enseignant ou simplement citoyen
+        soucieux de votre cerveau — <strong style="color:var(--cyan)">votre place est ici.</strong>
+        Chaque individu peut contribuer à l'amélioration de la santé cérébrale dans notre communauté.
+      </p>
+      <div class="audience-tags">
+        <span>Étudiants</span>
+        <span>Médecins</span>
+        <span>Chercheurs</span>
+        <span>Enseignants</span>
+        <span>Psychologues</span>
+        <span>Pharmaciens</span>
+        <span>Grand Public</span>
+        <span>Toute Profession</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══ SOCIAL ══ -->
+  <section id="social" aria-label="Nos réseaux sociaux">
+    <p class="section-label reveal">Nous Suivre</p>
+    <h2 class="section-title reveal">Rejoignez-nous<br/>sur les réseaux</h2>
+
+    <div class="social-grid">
+
+      <!-- TikTok -->
+      <a class="social-card card-tiktok reveal"
+         href="https://www.tiktok.com/@asca.association.annaba?_r=1&_t=ZS-95hsCas1oA8"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Suivez ASCA sur TikTok">
+        <div class="blob"></div>
+        <i class="fa-brands fa-tiktok s-icon" aria-hidden="true"></i>
+        <span class="s-name">TikTok</span>
+        <span class="s-handle">@asca.association.annaba</span>
+        <span class="s-btn">Suivre &nbsp;<i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.65rem"></i></span>
+      </a>
+
+      <!-- Instagram -->
+      <a class="social-card card-instagram reveal"
+         href="https://www.instagram.com/asca.community?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Suivez ASCA sur Instagram">
+        <div class="blob"></div>
+        <i class="fa-brands fa-instagram s-icon" aria-hidden="true"></i>
+        <span class="s-name">Instagram</span>
+        <span class="s-handle">@asca.community</span>
+        <span class="s-btn">Suivre &nbsp;<i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.65rem"></i></span>
+      </a>
+
+      <!-- Facebook -->
+      <a class="social-card card-facebook reveal"
+         href="https://www.facebook.com/share/1ED6Emo7Xt/?mibextid=wwXIfr"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Suivez ASCA sur Facebook">
+        <div class="blob"></div>
+        <i class="fa-brands fa-facebook s-icon" aria-hidden="true"></i>
+        <span class="s-name">Facebook</span>
+        <span class="s-handle">ASCA Annaba</span>
+        <span class="s-btn">Suivre &nbsp;<i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.65rem"></i></span>
+      </a>
+
+      <!-- LinkedIn -->
+      <a class="social-card card-linkedin reveal"
+         href="https://www.linkedin.com/company/asca-association-scientifique-pour-la-sant%C3%A9-du-cerveau-annaba/"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Suivez ASCA sur LinkedIn">
+        <div class="blob"></div>
+        <i class="fa-brands fa-linkedin-in s-icon" aria-hidden="true"></i>
+        <span class="s-name">LinkedIn</span>
+        <span class="s-handle">ASCA – Annaba</span>
+        <span class="s-btn">Suivre &nbsp;<i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.65rem"></i></span>
+      </a>
+
+      <!-- YouTube -->
+      <a class="social-card card-youtube reveal"
+         href="#"
+         target="_blank" rel="noopener noreferrer"
+         aria-label="Chaîne YouTube ASCA – Bientôt disponible"
+         style="opacity:0.7; cursor:not-allowed;"
+         onclick="return false;">
+        <div class="blob"></div>
+        <i class="fa-brands fa-youtube s-icon" aria-hidden="true"></i>
+        <span class="s-name">YouTube</span>
+        <span class="s-handle">Bientôt disponible</span>
+        <span class="s-btn">À venir &nbsp;<i class="fa-solid fa-clock" style="font-size:0.65rem"></i></span>
+      </a>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══ CONTACT ══ -->
+  <section id="contact" aria-label="Nous contacter">
+    <p class="section-label reveal">Nous Contacter</p>
+    <h2 class="section-title reveal">Une question ?<br/>Écrivez-nous</h2>
+    <a class="contact-box reveal" href="mailto:communityasca@gmail.com" aria-label="Envoyer un email à ASCA">
+      <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+      <span>communityasca@gmail.com</span>
+    </a>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <p>© 2025 <span>ASCA</span> – Association pour la Santé de Cerveau Annaba. Tous droits réservés.</p>
+    <p style="margin-top:0.5rem">
+      <a href="mailto:communityasca@gmail.com" style="color:var(--cyan);text-decoration:none;">communityasca@gmail.com</a>
+      &nbsp;·&nbsp; Annaba, Algérie
+    </p>
+  </footer>
+
+</div><!-- end site-wrap -->
+
+<script>
+  /* ── NEURAL CANVAS ── */
+  (function () {
+    const canvas = document.getElementById('neural-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, nodes;
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function makeNodes(n) {
+      return Array.from({ length: n }, () => ({
+        x:  Math.random() * W,
+        y:  Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        r:  Math.random() * 2.5 + 1,
+      }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      const maxDist = 160;
+
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < maxDist) {
+            const alpha = (1 - dist / maxDist) * 0.22;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `rgba(0,198,215,${alpha})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,198,215,0.55)';
+        ctx.fill();
+
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < 0 || n.x > W) n.vx *= -1;
+        if (n.y < 0 || n.y > H) n.vy *= -1;
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    nodes = makeNodes(70);
+    draw();
+    window.addEventListener('resize', () => { resize(); nodes = makeNodes(70); });
+  })();
+
+  /* ── SCROLL REVEAL ── */
+  (function () {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    els.forEach(el => io.observe(el));
+  })();
+</script>
+</body>
+</html>
