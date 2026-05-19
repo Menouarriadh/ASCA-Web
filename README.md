@@ -4,7 +4,7 @@ Official website for **ASCA** — a scientific association dedicated to **Cerebr
 
 > Open to **everyone** — students, healthcare professionals, researchers, and any citizen who wants to contribute to improving cerebral health.
 
----
+--
 
 ## 🌐 Live Preview
 
